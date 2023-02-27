@@ -5,8 +5,8 @@ FastSurfer surface models and color overlays and generate screen shots.
 
 ## Contents:
 
-- Capture 
-- Plot: functions for interactive visualization (wrapping plotly)
+- Capture 4x4 surface plots (front & back, left and right)
+- OpenGL window for interactive visualization
 
 Note, that currently no off-screen rendering is supported. Even in snap 
 mode an invisible window will be created to render the openGL output

@@ -502,7 +502,7 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage"
         if surfname is None:
             print("[INFO] No surf_name provided. Looking for options in surf directory...")
             for surf_name_option in ['pial_semi_inflated', 'white', 'inflated']:
-                if not os.path.exists(os.path.join(sdir, sid, hemi+"."+surf_name_option)):
+                if os.path.exists(os.path.join(sdir, sid, "surf", hemi+"."+surf_name_option)):
                     print("[INFO] Found {}".format(hemi+"."+surf_name_option))
                     meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surf_name_option)
                     break
@@ -609,7 +609,7 @@ def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir
     if surfname is None:
         print("[INFO] No surf_name provided. Looking for options in surf directory...")
         for surf_name_option in ['pial_semi_inflated', 'white', 'inflated']:
-            if not os.path.exists(os.path.join(sdir, sid, hemi+"."+surf_name_option)):
+            if not os.path.exists(os.path.join(sdir, sid, "surf", hemi+"."+surf_name_option)):
                 print("[INFO] Found {}".format(hemi+"."+surf_name_option))
                 meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surf_name_option)
                 break

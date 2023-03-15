@@ -32,7 +32,6 @@ def vertex_normals(v,t):
         at the triangle from above.
     :return:  n - normals (num vertices X 3 )
     """
-    import sys
     # Compute vertex coordinates and a difference vector for each triangle:
     v0 = v[t[:, 0], :]
     v1 = v[t[:, 1], :]

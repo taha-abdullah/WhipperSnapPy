@@ -464,7 +464,7 @@ def create_colorbar(fmin,fmax,invert,neg=True,font_file=None):
 
 
 def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir=None,
-           caption=None, invert=False, labelname="cortex.label", surfname="pial_semi_inflated",
+           caption=None, invert=False, labelname="cortex.label", surfname=None,
            curvname="curv", colorbar=True, outpath=None, font_file=None):
     # Function to snap 4 views, front and back for left and right
     #
@@ -499,7 +499,21 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage"
     transl = pyrr.Matrix44.from_translation((0,0,0.4))
 
     for hemi in ("lh","rh"):
-        meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surfname)
+        if surfname is None:
+            print("[INFO] No surf_name provided. Looking for options in surf directory...")
+            for surf_name_option in ['pial_semi_inflated', 'white', 'inflated']:
+                if not os.path.exists(os.path.join(sdir, sid, hemi+"."+surf_name_option)):
+                    print("[INFO] Found {}".format(hemi+"."+surf_name_option))
+                    meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surf_name_option)
+                    break
+                else:
+                    print("[INFO] No {} file found.".format(hemi+"."+surf_name_option))
+            else:
+                print("[ERROR] Could not find a valid surf file in {} for hemi: {}!".format(os.path.join(sdir, sid), hemi))
+                sys.exit(0)
+        else:
+            meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surfname)
+
         curvpath = None
         if curvname:
             curvpath = os.path.join(sdir,sid,"surf",hemi+"."+curvname)
@@ -570,7 +584,7 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage"
 
 
 def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir=None,
-           caption=None, invert=False, labelname="cortex.label", surfname="pial_semi_inflated",
+           caption=None, invert=False, labelname="cortex.label", surfname=None,
            curvname="curv"):
     # function to show an interactive window
     #
@@ -592,7 +606,21 @@ def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir
     if not window:
         return False
 
-    meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surfname)
+    if surfname is None:
+        print("[INFO] No surf_name provided. Looking for options in surf directory...")
+        for surf_name_option in ['pial_semi_inflated', 'white', 'inflated']:
+            if not os.path.exists(os.path.join(sdir, sid, hemi+"."+surf_name_option)):
+                print("[INFO] Found {}".format(hemi+"."+surf_name_option))
+                meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surf_name_option)
+                break
+            else:
+                print("[INFO] No {} file found.".format(hemi+"."+surf_name_option))
+        else:
+            print("[ERROR] Could not find a valid surf file in {} for hemi: {}!".format(os.path.join(sdir, sid), hemi))
+            sys.exit(0)
+    else:
+        meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surfname)
+
     curvpath = None
     if curvname:
         curvpath = os.path.join(sdir,sid,"surf",hemi+"."+curvname)
@@ -654,6 +682,8 @@ if __name__ == "__main__":
     parser.add_argument('-sd', '--sdir', type=str, required=True,
                         help='Absolute path to the subject directory from which surfaces will be loaded. '
                              'This is assumed to contain the surface files in a surf/ sub-directory.')
+    parser.add_argument('-s', '--surf_name', type=str, default=None,
+                        help='Name of the surface file to load.')
     parser.add_argument('--sid', type=str, default='fsaverage',
                         help='ID of the subject within sdir whose surfaces will be loaded.')
     parser.add_argument('-o', '--output_path', type=str, default='/tmp/whippersnapper_snap.png',
@@ -668,9 +698,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.interactive:
-        show_window('lh', args.lh_overlay, sdir=args.sdir)
+        show_window('lh', args.lh_overlay, sdir=args.sdir, surfname=args.surf_name)
     else:
-        snap4(args.lh_overlay, args.rh_overlay, sdir=args.sdir, caption=args.caption,
+        snap4(args.lh_overlay, args.rh_overlay, sdir=args.sdir, caption=args.caption, surfname=args.surf_name,
               fthresh=args.fthresh, fmax=args.fmax, invert=False, colorbar=True, outpath=args.output_path)
 
 

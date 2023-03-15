@@ -385,7 +385,7 @@ def capture_window(width,height):
         image.thumbnail((0.5*width,0.5*height), Image.Resampling.LANCZOS)
     return image
 
-def create_colorbar(fmin,fmax,invert,neg=True):
+def create_colorbar(fmin,fmax,invert,neg=True,font_file=None):
     # fmin: abs of min value that receives color (threshold)
     # fmax: abs of max value where color saturates
     # invert : color invert
@@ -419,7 +419,10 @@ def create_colorbar(fmin,fmax,invert,neg=True):
     img_buf[3:cheight+3,10:cwidth+10,:] = img_bar
     image = Image.fromarray(img_buf)
 
-    font = ImageFont.truetype("roboto-regular.ttf", 12)
+    if font_file is None:
+        script_dir = '/'.join(str(__file__).split('/')[:-1])
+        font_file = os.path.join(script_dir, 'Roboto-Regular.ttf')
+    font = ImageFont.truetype(font_file, 12)
     if neg:
         # Left
         caption=" <{:.2f}".format(-fmax)
@@ -458,7 +461,7 @@ def create_colorbar(fmin,fmax,invert,neg=True):
 
 def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir=None,
            caption=None, invert=False, labelname="cortex.label", surfname="pial_semi_inflated",
-           curvname="curv", colorbar=True, outpath=None):
+           curvname="curv", colorbar=True, outpath=None, font_file=None):
     # Function to snap 4 views, front and back for left and right
     #
     # lh rhoverlaypath : path to the overlay files for left and right hemi (FreeSurfer format)
@@ -544,7 +547,10 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage"
     image.paste(rhimg, (im1.width, 0))
 
     if caption:
-        font = ImageFont.truetype("roboto-regular.ttf", 20)
+        if font_file is None:
+            script_dir = '/'.join(str(__file__).split('/')[:-1])
+            font_file = os.path.join(script_dir, 'Roboto-Regular.ttf')
+        font = ImageFont.truetype(font_file, 20)
         xpos = 0.5*(image.width-font.getlength(caption))
         ImageDraw.Draw(image).text((xpos, image.height-40), caption, (220,220,220), font=font)
 

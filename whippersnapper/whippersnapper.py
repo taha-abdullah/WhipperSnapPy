@@ -599,7 +599,7 @@ def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir
         labelpath = os.path.join(sdir,sid,"label",hemi+"."+labelname)
 
 
-    meshdata, triangles = prepare_geometry(meshpath, overlaypath, curvpath, labelpath, fthresh, fmax)
+    meshdata, triangles, fthresh, fmax, neg = prepare_geometry(meshpath, overlaypath, curvpath, labelpath, fthresh, fmax)
 
     shader = setup_shader(meshdata, triangles, wwidth, wheight)
 

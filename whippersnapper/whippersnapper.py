@@ -1,5 +1,7 @@
 import sys
 import os
+import argparse
+
 import glfw
 from OpenGL.GL import *
 import OpenGL.GL.shaders
@@ -642,18 +644,32 @@ def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-lh', '--lh_overlay', type=str, required=True,
+                        help='Absolute path to the lh overlay file.')
+    parser.add_argument('-rh', '--rh_overlay', type=str, required=True,
+                        help='Absolute path to the rh overlay file.')
+    parser.add_argument('-sd', '--sdir', type=str, required=True,
+                        help='Absolute path to the subject directory from which surfaces will be loaded. '
+                             'This is assumed to contain the surface files in a surf/ sub-directory.')
+    parser.add_argument('--sid', type=str, default='fsaverage',
+                        help='ID of the subject within sdir whose surfaces will be loaded.')
+    parser.add_argument('-o', '--output_path', type=str, default='/tmp/whippersnapper_snap.png',
+                        help='Absolute path to the output file (snapshot image), '
+                             'if not running interactive mode.')
+    parser.add_argument('-c', '--caption', type=str, default='Super cool WhipperSnapper 2.0',
+                        help='Caption to place on the figure')
+    parser.add_argument('--fmax', type=float, default=4.0)
+    parser.add_argument('--fthresh', type=float, default=2.0)
+    parser.add_argument('-i', '--interactive', dest='interactive', action='store_true',
+                        help='Start an interactive session.')
+    args = parser.parse_args()
 
-
-    inspect_hemi=None
-
-    if inspect_hemi:
-        show_window(inspect_hemi,"lh.thickness", sdir="/Applications/freesurfer/7.3.2/subjects/")
+    if args.interactive:
+        show_window('lh', args.lh_overlay, sdir=args.sdir)
     else:
-        snap4("../../lh.thickness","../../rh.thickness",
-              sdir="/Applications/freesurfer/7.3.2/subjects/",
-              caption="Super cool WhipperSnapper 2.0",fthresh=2,fmax=4.0,invert=False,
-              colorbar=True,
-              outpath="snap4.png")
+        snap4(args.lh_overlay, args.rh_overlay, sdir=args.sdir, caption=args.caption,
+              fthresh=args.fthresh, fmax=args.fmax, invert=False, colorbar=True, outpath=args.output_path)
 
 
 

@@ -137,7 +137,7 @@ def mask_label(values,labelpath=None):
     values[imask] = np.nan    
     return values
 
-def prepare_gerometry(surfpath, overlaypath=None, curvpath=None, labelpath=None, minval=None, maxval=None, invert=False):
+def prepare_geometry(surfpath, overlaypath=None, curvpath=None, labelpath=None, minval=None, maxval=None, invert=False):
     # prepare meshdata and tringles
     # surfpath : file path of surface file, usually lh or rh.pial_semi_inflated
     # overlaypath : file path of ovlerlay file
@@ -505,7 +505,7 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage"
             overlaypath=rhoverlaypath
 
         # load and colorzie data
-        meshdata, triangles, fthresh, fmax, neg = prepare_gerometry(meshpath, overlaypath, curvpath, labelpath, fthresh, fmax, invert)
+        meshdata, triangles, fthresh, fmax, neg = prepare_geometry(meshpath, overlaypath, curvpath, labelpath, fthresh, fmax, invert)
         # upload to GPU and compile shaders
         shader = setup_shader(meshdata, triangles, wwidth, wheight)
 
@@ -591,7 +591,7 @@ def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir
         labelpath = os.path.join(sdir,sid,"label",hemi+"."+labelname)
 
 
-    meshdata, triangles = prepare_gerometry(meshpath, overlaypath, curvpath, labelpath, fthresh, fmax)
+    meshdata, triangles = prepare_geometry(meshpath, overlaypath, curvpath, labelpath, fthresh, fmax)
 
     shader = setup_shader(meshdata, triangles, wwidth, wheight)
 

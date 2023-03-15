@@ -501,16 +501,11 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage"
     for hemi in ("lh","rh"):
         if surfname is None:
             print("[INFO] No surf_name provided. Looking for options in surf directory...")
-            for surf_name_option in ['pial_semi_inflated', 'white', 'inflated']:
-                if os.path.exists(os.path.join(sdir, sid, "surf", hemi+"."+surf_name_option)):
-                    print("[INFO] Found {}".format(hemi+"."+surf_name_option))
-                    meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surf_name_option)
-                    break
-                else:
-                    print("[INFO] No {} file found.".format(hemi+"."+surf_name_option))
-            else:
+            found_surfname = get_surf_name(sdir, sid, hemi)
+            if found_surfname is None:
                 print("[ERROR] Could not find a valid surf file in {} for hemi: {}!".format(os.path.join(sdir, sid), hemi))
                 sys.exit(0)
+            meshpath = os.path.join(sdir,sid,"surf",hemi+"."+found_surfname)
         else:
             meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surfname)
 
@@ -608,16 +603,11 @@ def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir
 
     if surfname is None:
         print("[INFO] No surf_name provided. Looking for options in surf directory...")
-        for surf_name_option in ['pial_semi_inflated', 'white', 'inflated']:
-            if not os.path.exists(os.path.join(sdir, sid, "surf", hemi+"."+surf_name_option)):
-                print("[INFO] Found {}".format(hemi+"."+surf_name_option))
-                meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surf_name_option)
-                break
-            else:
-                print("[INFO] No {} file found.".format(hemi+"."+surf_name_option))
-        else:
+        found_surfname = get_surf_name(sdir, sid, hemi)
+        if found_surfname is None:
             print("[ERROR] Could not find a valid surf file in {} for hemi: {}!".format(os.path.join(sdir, sid), hemi))
             sys.exit(0)
+        meshpath = os.path.join(sdir,sid,"surf",hemi+"."+found_surfname)
     else:
         meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surfname)
 
@@ -671,6 +661,35 @@ def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir
  
     glfw.terminate()
 
+def get_surf_name(sdir, sid, hemi):
+    """
+    Looks for a surface file from a list of valid file names in the specified
+    subject directory,
+
+    A valid file can be one of: ['pial_semi_inflated', 'white', 'inflated'].
+
+    Parameters
+    ----------
+    sdir: str
+        Subject directory
+    sid: str
+        Subject ID
+    hemi: str
+        Hemisphere; one of: ['lh', 'rh']
+
+    Returns
+    -------
+    surfname: str
+        Valid and existing surf file's name; otherwise, None.
+    """
+    for surf_name_option in ['pial_semi_inflated', 'white', 'inflated']:
+        if os.path.exists(os.path.join(sdir, sid, "surf", hemi+"."+surf_name_option)):
+            print("[INFO] Found {}".format(hemi+"."+surf_name_option))
+            return surf_name_option
+        else:
+            print("[INFO] No {} file found".format(hemi+"."+surf_name_option))
+    else:
+        return None
 
 
 if __name__ == "__main__":

@@ -1,13 +1,16 @@
-import sys
+#!/usr/bin/env python3
+
 import os
+import sys
+import math
 import argparse
 
 import glfw
-from OpenGL.GL import *
+import pyrr
 import OpenGL.GL.shaders
 import numpy as np
-import pyrr
-import math
+
+from OpenGL.GL import *
 from PIL import Image, ImageDraw, ImageFont
 
 from read_geometry import read_geometry, read_morph_data

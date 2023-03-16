@@ -28,12 +28,24 @@ def normalize_mesh(v, scale=1.0):
 # adopted from lapy
 def vertex_normals(v,t):
     """
-    get_vertex_normals(v,t) computes vertex normals
-        Triangle normals around each vertex are averaged, weighted
-        by the angle that they contribute.
-        Ordering is important: counterclockwise when looking
-        at the triangle from above.
-    :return:  n - normals (num vertices X 3 )
+    Computes vertex normals.
+
+    Triangle normals around each vertex are averaged, weighted by the angle 
+    that they contribute.
+    Ordering is important: counterclockwise when looking at the triangle 
+    from above.
+
+    Parameters
+    ----------
+    v: numpy.ndarray
+        Vertex array
+    t: numpy.ndarray
+        Triangle array
+
+    Returns
+    -------
+    normals: numpy.ndarray
+        Normals array: n - normals (num vertices X 3 )
     """
     # Compute vertex coordinates and a difference vector for each triangle:
     v0 = v[t[:, 0], :]
@@ -466,19 +478,41 @@ def create_colorbar(fmin,fmax,invert,neg=True,font_file=None):
 def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sdir=None,
            caption=None, invert=False, labelname="cortex.label", surfname=None,
            curvname="curv", colorbar=True, outpath=None, font_file=None):
-    # Function to snap 4 views, front and back for left and right
-    #
-    # lh rhoverlaypath : path to the overlay files for left and right hemi (FreeSurfer format)
-    # fthresh : pos float value under which (absolute value) no color is shown
-    # fmax    : pos float value above which (absolute value) color is saturated 
-    # sdir    : subject dir (use $FREESURFER_HOME/subjects/fsaverage as default in future)
-    # caption : caption text on image
-    # invert  : color invert (blue positive, red negative)
-    # labelname : label for masking, usually cortex.label
-    # surfname : surface to display values on , usually pial_semi_inflated from fsaverage
-    # curvname : curvature file for texture in non-colored regions, default curv
-    # colorbar : show colorbar in image
-    # outpath : path and filename of output image
+    """
+    Snaps four views (front and back for left and right) and saves an image that
+    includes the views and a color bar.
+
+    Parameters
+    ----------
+    lhoverlaypath/rhoverlaypath: str
+        Path to the overlay files for left and right hemi (FreeSurfer format)
+    fthresh: float
+        Pos absolute value under which no color is shown
+    fmax: float
+        Pos absolute value above which color is saturated
+    sdir: str
+       Subject dir containing surf files
+    caption: str
+       Caption text to be placed on the image
+    invert: bool
+       Invert color (blue positive, red negative)
+    labelname: str
+       Label for masking, usually cortex.label
+    surfname: str
+       Surface to display values on, usually pial_semi_inflated from fsaverage
+    curvname: str
+       Curvature file for texture in non-colored regions (default curv)
+    colorbar: bool
+       Show colorbar on image
+    outpath: str
+        Path to the output image file
+    font_file: str
+        Path to the file describing the font to be used in captions
+
+    Returns
+    -------
+    None
+    """
 
     # setup window (keep this aspect ratio, as the mesh scale and distances are set accordingly)
     wwidth=540
@@ -581,18 +615,36 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sdir=None,
 def show_window(hemi,overlaypath, fthresh=None, fmax=None, sdir=None,
            caption=None, invert=False, labelname="cortex.label", surfname=None,
            curvname="curv"):
-    # function to show an interactive window
-    #
-    # hemi : what hemi load
-    # overlaypath : path to the overlay files for the specified hemi (FreeSurfer format)
-    # fthresh : pos float value under which (absolute value) no color is shown
-    # fmax    : pos float value above which (absolute value) color is saturated 
-    # sdir    : subject dir (use $FREESURFER_HOME/subjects/fsaverage as default in future)
-    # caption : caption text on image
-    # invert  : color invert (blue positive, red negative)
-    # labelname : label for masking, usually cortex.label
-    # surfname : surface to display values on , usually pial_semi_inflated from fsaverage
-    # curvname : curvature file for texture in non-colored regions, default curv
+    """
+    Starts an interactive window in which an overlay can be viewed.
+
+    Parameters
+    ----------
+    hemi: str
+        Hemisphere; one of: ['lh', 'rh']
+    overlaypath: str
+        Path to the overlay file for the specified hemi (FreeSurfer format)
+    fthresh: float
+        Pos absolute value under which no color is shown
+    fmax: float
+        Pos absolute value above which color is saturated
+    sdir: str
+       Subject dir containing surf files
+    caption: str
+       Caption text to be placed on the image
+    invert: bool
+       Invert color (blue positive, red negative)
+    labelname: str
+       Label for masking, usually cortex.label
+    surfname: str
+       Surface to display values on, usually pial_semi_inflated from fsaverage
+    curvname: str
+       Curvature file for texture in non-colored regions (default curv)
+
+    Returns
+    -------
+    None
+    """
 
     wwidth=720
     wheight=600

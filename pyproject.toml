@@ -18,7 +18,7 @@ maintainers = [
 keywords = [
     'python',
     'FreeSurfer',
-    'Brain MRI,
+    'Brain MRI',
     'Cortical Surface',
 ]
 classifiers = [

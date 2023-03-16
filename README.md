@@ -26,7 +26,28 @@ xvfb-run python3 whipersnapper.py ...
 
 ## Usage:
 
+### Docker:
 
+The whippersnapper program can be run within a docker container to capture
+a snapshot by building the provided Docker image and running a container as
+follows:
+```
+docker build --rm=true -t whippersnapper -f ./Dockerfile .
+```
+```
+docker run --rm --init --name my_whippersnapper -v $SURF_SUBJECT_DIR:/surf_subject_dir \
+                                                -v $OVERLAY_DIR:/overlay_dir \
+                                                -v $OUTPUT_DIR:/output_dir \
+                                                --user $(id -u):$(id -g) whippersnapper:latest \
+                                                --lh_overlay /overlay_dir/$LH_OVERLAY_FILE \
+                                                --rh_overlay /overlay_dir/$RH_OVERLAY_FILE \
+                                                --sdir /surf_subject_dir \
+                                                --output_path /output_dir/whippersnapper_image.png
+```
+
+In this example: `$SURF_SUBJECT_DIR` contains the surface files, `$OVERLAY_DIR` contains the overlays to be loaded on to the surfaces, `$OUTPUT_DIR` is the local output directory in which the snapshot will be saved, and `${LH/RH}_OVERLAY_FILE` point to the specific overlay files to load.
+
+**Note:** The `--init` flag is needed for the `xvfb-run` tool to be used correctly.
 
 ## Links:
 

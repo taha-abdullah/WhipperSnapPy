@@ -24,6 +24,13 @@ xvfb-run python3 whipersnapper.py ...
 - Add unit tests and automated testing 
 - Move to true off-screen rendering e.g. via EGL (preferred) or OSMesa
 
+## Installation:
+
+The `whippersnapper` package can be installed from this repository using:
+```
+python3 -m pip install .
+```
+
 ## Usage:
 
 ### Docker:

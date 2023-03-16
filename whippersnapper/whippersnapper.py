@@ -574,6 +574,7 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage"
         image.paste(bar,(xpos,ypos))
 
     if outpath:
+        print("[INFO] Saving snapshot to {}".format(outpath))
         image.save(outpath)
 
 

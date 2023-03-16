@@ -463,7 +463,7 @@ def create_colorbar(fmin,fmax,invert,neg=True,font_file=None):
     return image
 
 
-def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir=None,
+def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sdir=None,
            caption=None, invert=False, labelname="cortex.label", surfname=None,
            curvname="curv", colorbar=True, outpath=None, font_file=None):
     # Function to snap 4 views, front and back for left and right
@@ -471,8 +471,7 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage"
     # lh rhoverlaypath : path to the overlay files for left and right hemi (FreeSurfer format)
     # fthresh : pos float value under which (absolute value) no color is shown
     # fmax    : pos float value above which (absolute value) color is saturated 
-    # sid     : subject id, default fsaverage
-    # sdir    : subject dir (use $FREESURFER_HOME/subjects/ as default in future)
+    # sdir    : subject dir (use $FREESURFER_HOME/subjects/fsaverage as default in future)
     # caption : caption text on image
     # invert  : color invert (blue positive, red negative)
     # labelname : label for masking, usually cortex.label
@@ -501,20 +500,20 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage"
     for hemi in ("lh","rh"):
         if surfname is None:
             print("[INFO] No surf_name provided. Looking for options in surf directory...")
-            found_surfname = get_surf_name(sdir, sid, hemi)
+            found_surfname = get_surf_name(sdir, hemi)
             if found_surfname is None:
-                print("[ERROR] Could not find a valid surf file in {} for hemi: {}!".format(os.path.join(sdir, sid), hemi))
+                print("[ERROR] Could not find a valid surf file in {} for hemi: {}!".format(sdir, hemi))
                 sys.exit(0)
-            meshpath = os.path.join(sdir,sid,"surf",hemi+"."+found_surfname)
+            meshpath = os.path.join(sdir,"surf",hemi+"."+found_surfname)
         else:
-            meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surfname)
+            meshpath = os.path.join(sdir,"surf",hemi+"."+surfname)
 
         curvpath = None
         if curvname:
-            curvpath = os.path.join(sdir,sid,"surf",hemi+"."+curvname)
+            curvpath = os.path.join(sdir,"surf",hemi+"."+curvname)
         labelpath = None
         if labelname:
-            labelpath = os.path.join(sdir,sid,"label",hemi+"."+labelname)
+            labelpath = os.path.join(sdir,"label",hemi+"."+labelname)
         if hemi=="lh":
             overlaypath=lhoverlaypath
         else:
@@ -579,7 +578,7 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage"
 
 
 
-def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir=None,
+def show_window(hemi,overlaypath, fthresh=None, fmax=None, sdir=None,
            caption=None, invert=False, labelname="cortex.label", surfname=None,
            curvname="curv"):
     # function to show an interactive window
@@ -588,8 +587,7 @@ def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir
     # overlaypath : path to the overlay files for the specified hemi (FreeSurfer format)
     # fthresh : pos float value under which (absolute value) no color is shown
     # fmax    : pos float value above which (absolute value) color is saturated 
-    # sid     : subject id, default fsaverage
-    # sdir    : subject dir (use $FREESURFER_HOME/subjects/ as default in future)
+    # sdir    : subject dir (use $FREESURFER_HOME/subjects/fsaverage as default in future)
     # caption : caption text on image
     # invert  : color invert (blue positive, red negative)
     # labelname : label for masking, usually cortex.label
@@ -604,21 +602,20 @@ def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir
 
     if surfname is None:
         print("[INFO] No surf_name provided. Looking for options in surf directory...")
-        found_surfname = get_surf_name(sdir, sid, hemi)
+        found_surfname = get_surf_name(sdir, hemi)
         if found_surfname is None:
-            print("[ERROR] Could not find a valid surf file in {} for hemi: {}!".format(os.path.join(sdir, sid), hemi))
+            print("[ERROR] Could not find a valid surf file in {} for hemi: {}!".format(sdir, hemi))
             sys.exit(0)
-        meshpath = os.path.join(sdir,sid,"surf",hemi+"."+found_surfname)
+        meshpath = os.path.join(sdir,"surf",hemi+"."+found_surfname)
     else:
-        meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surfname)
+        meshpath = os.path.join(sdir,"surf",hemi+"."+surfname)
 
     curvpath = None
     if curvname:
-        curvpath = os.path.join(sdir,sid,"surf",hemi+"."+curvname)
+        curvpath = os.path.join(sdir,"surf",hemi+"."+curvname)
     labelpath = None
     if labelname:
-        labelpath = os.path.join(sdir,sid,"label",hemi+"."+labelname)
-
+        labelpath = os.path.join(sdir,"label",hemi+"."+labelname)
 
     meshdata, triangles, fthresh, fmax, neg = prepare_geometry(meshpath, overlaypath, curvpath, labelpath, fthresh, fmax)
 
@@ -662,7 +659,7 @@ def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir
  
     glfw.terminate()
 
-def get_surf_name(sdir, sid, hemi):
+def get_surf_name(sdir, hemi):
     """
     Looks for a surface file from a list of valid file names in the specified
     subject directory,
@@ -673,8 +670,6 @@ def get_surf_name(sdir, sid, hemi):
     ----------
     sdir: str
         Subject directory
-    sid: str
-        Subject ID
     hemi: str
         Hemisphere; one of: ['lh', 'rh']
 
@@ -684,7 +679,7 @@ def get_surf_name(sdir, sid, hemi):
         Valid and existing surf file's name; otherwise, None.
     """
     for surf_name_option in ['pial_semi_inflated', 'white', 'inflated']:
-        if os.path.exists(os.path.join(sdir, sid, "surf", hemi+"."+surf_name_option)):
+        if os.path.exists(os.path.join(sdir, "surf", hemi+"."+surf_name_option)):
             print("[INFO] Found {}".format(hemi+"."+surf_name_option))
             return surf_name_option
         else:
@@ -704,8 +699,6 @@ if __name__ == "__main__":
                              'This is assumed to contain the surface files in a surf/ sub-directory.')
     parser.add_argument('-s', '--surf_name', type=str, default=None,
                         help='Name of the surface file to load.')
-    parser.add_argument('--sid', type=str, default='fsaverage',
-                        help='ID of the subject within sdir whose surfaces will be loaded.')
     parser.add_argument('-o', '--output_path', type=str, default='/tmp/whippersnapper_snap.png',
                         help='Absolute path to the output file (snapshot image), '
                              'if not running interactive mode.')

@@ -1,11 +1,16 @@
-import sys
+#!/usr/bin/env python3
+
 import os
+import sys
+import math
+import argparse
+
 import glfw
-from OpenGL.GL import *
+import pyrr
 import OpenGL.GL.shaders
 import numpy as np
-import pyrr
-import math
+
+from OpenGL.GL import *
 from PIL import Image, ImageDraw, ImageFont
 
 from read_geometry import read_geometry, read_morph_data
@@ -23,14 +28,25 @@ def normalize_mesh(v, scale=1.0):
 # adopted from lapy
 def vertex_normals(v,t):
     """
-    get_vertex_normals(v,t) computes vertex normals
-        Triangle normals around each vertex are averaged, weighted
-        by the angle that they contribute.
-        Ordering is important: counterclockwise when looking
-        at the triangle from above.
-    :return:  n - normals (num vertices X 3 )
+    Computes vertex normals.
+
+    Triangle normals around each vertex are averaged, weighted by the angle 
+    that they contribute.
+    Ordering is important: counterclockwise when looking at the triangle 
+    from above.
+
+    Parameters
+    ----------
+    v: numpy.ndarray
+        Vertex array
+    t: numpy.ndarray
+        Triangle array
+
+    Returns
+    -------
+    normals: numpy.ndarray
+        Normals array: n - normals (num vertices X 3 )
     """
-    import sys
     # Compute vertex coordinates and a difference vector for each triangle:
     v0 = v[t[:, 0], :]
     v1 = v[t[:, 1], :]
@@ -137,7 +153,7 @@ def mask_label(values,labelpath=None):
     values[imask] = np.nan    
     return values
 
-def prepare_gerometry(surfpath, overlaypath=None, curvpath=None, labelpath=None, minval=None, maxval=None, invert=False):
+def prepare_geometry(surfpath, overlaypath=None, curvpath=None, labelpath=None, minval=None, maxval=None, invert=False):
     # prepare meshdata and tringles
     # surfpath : file path of surface file, usually lh or rh.pial_semi_inflated
     # overlaypath : file path of ovlerlay file
@@ -385,7 +401,7 @@ def capture_window(width,height):
         image.thumbnail((0.5*width,0.5*height), Image.Resampling.LANCZOS)
     return image
 
-def create_colorbar(fmin,fmax,invert,neg=True):
+def create_colorbar(fmin,fmax,invert,neg=True,font_file=None):
     # fmin: abs of min value that receives color (threshold)
     # fmax: abs of max value where color saturates
     # invert : color invert
@@ -419,7 +435,10 @@ def create_colorbar(fmin,fmax,invert,neg=True):
     img_buf[3:cheight+3,10:cwidth+10,:] = img_bar
     image = Image.fromarray(img_buf)
 
-    font = ImageFont.truetype("roboto-regular.ttf", 12)
+    if font_file is None:
+        script_dir = '/'.join(str(__file__).split('/')[:-1])
+        font_file = os.path.join(script_dir, 'Roboto-Regular.ttf')
+    font = ImageFont.truetype(font_file, 12)
     if neg:
         # Left
         caption=" <{:.2f}".format(-fmax)
@@ -456,23 +475,44 @@ def create_colorbar(fmin,fmax,invert,neg=True):
     return image
 
 
-def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir=None,
-           caption=None, invert=False, labelname="cortex.label", surfname="pial_semi_inflated",
-           curvname="curv", colorbar=True, outpath=None):
-    # Function to snap 4 views, front and back for left and right
-    #
-    # lh rhoverlaypath : path to the overlay files for left and right hemi (FreeSurfer format)
-    # fthresh : pos float value under which (absolute value) no color is shown
-    # fmax    : pos float value above which (absolute value) color is saturated 
-    # sid     : subject id, default fsaverage
-    # sdir    : subject dir (use $FREESURFER_HOME/subjects/ as default in future)
-    # caption : caption text on image
-    # invert  : color invert (blue positive, red negative)
-    # labelname : label for masking, usually cortex.label
-    # surfname : surface to display values on , usually pial_semi_inflated from fsaverage
-    # curvname : curvature file for texture in non-colored regions, default curv
-    # colorbar : show colorbar in image
-    # outpath : path and filename of output image
+def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sdir=None,
+           caption=None, invert=False, labelname="cortex.label", surfname=None,
+           curvname="curv", colorbar=True, outpath=None, font_file=None):
+    """
+    Snaps four views (front and back for left and right) and saves an image that
+    includes the views and a color bar.
+
+    Parameters
+    ----------
+    lhoverlaypath/rhoverlaypath: str
+        Path to the overlay files for left and right hemi (FreeSurfer format)
+    fthresh: float
+        Pos absolute value under which no color is shown
+    fmax: float
+        Pos absolute value above which color is saturated
+    sdir: str
+       Subject dir containing surf files
+    caption: str
+       Caption text to be placed on the image
+    invert: bool
+       Invert color (blue positive, red negative)
+    labelname: str
+       Label for masking, usually cortex.label
+    surfname: str
+       Surface to display values on, usually pial_semi_inflated from fsaverage
+    curvname: str
+       Curvature file for texture in non-colored regions (default curv)
+    colorbar: bool
+       Show colorbar on image
+    outpath: str
+        Path to the output image file
+    font_file: str
+        Path to the file describing the font to be used in captions
+
+    Returns
+    -------
+    None
+    """
 
     # setup window (keep this aspect ratio, as the mesh scale and distances are set accordingly)
     wwidth=540
@@ -492,20 +532,29 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage"
     transl = pyrr.Matrix44.from_translation((0,0,0.4))
 
     for hemi in ("lh","rh"):
-        meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surfname)
+        if surfname is None:
+            print("[INFO] No surf_name provided. Looking for options in surf directory...")
+            found_surfname = get_surf_name(sdir, hemi)
+            if found_surfname is None:
+                print("[ERROR] Could not find a valid surf file in {} for hemi: {}!".format(sdir, hemi))
+                sys.exit(0)
+            meshpath = os.path.join(sdir,"surf",hemi+"."+found_surfname)
+        else:
+            meshpath = os.path.join(sdir,"surf",hemi+"."+surfname)
+
         curvpath = None
         if curvname:
-            curvpath = os.path.join(sdir,sid,"surf",hemi+"."+curvname)
+            curvpath = os.path.join(sdir,"surf",hemi+"."+curvname)
         labelpath = None
         if labelname:
-            labelpath = os.path.join(sdir,sid,"label",hemi+"."+labelname)
+            labelpath = os.path.join(sdir,"label",hemi+"."+labelname)
         if hemi=="lh":
             overlaypath=lhoverlaypath
         else:
             overlaypath=rhoverlaypath
 
         # load and colorzie data
-        meshdata, triangles, fthresh, fmax, neg = prepare_gerometry(meshpath, overlaypath, curvpath, labelpath, fthresh, fmax, invert)
+        meshdata, triangles, fthresh, fmax, neg = prepare_geometry(meshpath, overlaypath, curvpath, labelpath, fthresh, fmax, invert)
         # upload to GPU and compile shaders
         shader = setup_shader(meshdata, triangles, wwidth, wheight)
 
@@ -544,7 +593,10 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage"
     image.paste(rhimg, (im1.width, 0))
 
     if caption:
-        font = ImageFont.truetype("roboto-regular.ttf", 20)
+        if font_file is None:
+            script_dir = '/'.join(str(__file__).split('/')[:-1])
+            font_file = os.path.join(script_dir, 'Roboto-Regular.ttf')
+        font = ImageFont.truetype(font_file, 20)
         xpos = 0.5*(image.width-font.getlength(caption))
         ImageDraw.Draw(image).text((xpos, image.height-40), caption, (220,220,220), font=font)
 
@@ -555,26 +607,44 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sid="fsaverage"
         image.paste(bar,(xpos,ypos))
 
     if outpath:
+        print("[INFO] Saving snapshot to {}".format(outpath))
         image.save(outpath)
 
 
 
-def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir=None,
-           caption=None, invert=False, labelname="cortex.label", surfname="pial_semi_inflated",
+def show_window(hemi,overlaypath, fthresh=None, fmax=None, sdir=None,
+           caption=None, invert=False, labelname="cortex.label", surfname=None,
            curvname="curv"):
-    # function to show an interactive window
-    #
-    # hemi : what hemi load
-    # overlaypath : path to the overlay files for the specified hemi (FreeSurfer format)
-    # fthresh : pos float value under which (absolute value) no color is shown
-    # fmax    : pos float value above which (absolute value) color is saturated 
-    # sid     : subject id, default fsaverage
-    # sdir    : subject dir (use $FREESURFER_HOME/subjects/ as default in future)
-    # caption : caption text on image
-    # invert  : color invert (blue positive, red negative)
-    # labelname : label for masking, usually cortex.label
-    # surfname : surface to display values on , usually pial_semi_inflated from fsaverage
-    # curvname : curvature file for texture in non-colored regions, default curv
+    """
+    Starts an interactive window in which an overlay can be viewed.
+
+    Parameters
+    ----------
+    hemi: str
+        Hemisphere; one of: ['lh', 'rh']
+    overlaypath: str
+        Path to the overlay file for the specified hemi (FreeSurfer format)
+    fthresh: float
+        Pos absolute value under which no color is shown
+    fmax: float
+        Pos absolute value above which color is saturated
+    sdir: str
+       Subject dir containing surf files
+    caption: str
+       Caption text to be placed on the image
+    invert: bool
+       Invert color (blue positive, red negative)
+    labelname: str
+       Label for masking, usually cortex.label
+    surfname: str
+       Surface to display values on, usually pial_semi_inflated from fsaverage
+    curvname: str
+       Curvature file for texture in non-colored regions (default curv)
+
+    Returns
+    -------
+    None
+    """
 
     wwidth=720
     wheight=600
@@ -582,16 +652,24 @@ def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir
     if not window:
         return False
 
-    meshpath = os.path.join(sdir,sid,"surf",hemi+"."+surfname)
+    if surfname is None:
+        print("[INFO] No surf_name provided. Looking for options in surf directory...")
+        found_surfname = get_surf_name(sdir, hemi)
+        if found_surfname is None:
+            print("[ERROR] Could not find a valid surf file in {} for hemi: {}!".format(sdir, hemi))
+            sys.exit(0)
+        meshpath = os.path.join(sdir,"surf",hemi+"."+found_surfname)
+    else:
+        meshpath = os.path.join(sdir,"surf",hemi+"."+surfname)
+
     curvpath = None
     if curvname:
-        curvpath = os.path.join(sdir,sid,"surf",hemi+"."+curvname)
+        curvpath = os.path.join(sdir,"surf",hemi+"."+curvname)
     labelpath = None
     if labelname:
-        labelpath = os.path.join(sdir,sid,"label",hemi+"."+labelname)
+        labelpath = os.path.join(sdir,"label",hemi+"."+labelname)
 
-
-    meshdata, triangles = prepare_gerometry(meshpath, overlaypath, curvpath, labelpath, fthresh, fmax)
+    meshdata, triangles, fthresh, fmax, neg = prepare_geometry(meshpath, overlaypath, curvpath, labelpath, fthresh, fmax)
 
     shader = setup_shader(meshdata, triangles, wwidth, wheight)
 
@@ -633,21 +711,62 @@ def show_window(hemi,overlaypath, fthresh=None, fmax=None, sid="fsaverage", sdir
  
     glfw.terminate()
 
+def get_surf_name(sdir, hemi):
+    """
+    Looks for a surface file from a list of valid file names in the specified
+    subject directory,
+
+    A valid file can be one of: ['pial_semi_inflated', 'white', 'inflated'].
+
+    Parameters
+    ----------
+    sdir: str
+        Subject directory
+    hemi: str
+        Hemisphere; one of: ['lh', 'rh']
+
+    Returns
+    -------
+    surfname: str
+        Valid and existing surf file's name; otherwise, None.
+    """
+    for surf_name_option in ['pial_semi_inflated', 'white', 'inflated']:
+        if os.path.exists(os.path.join(sdir, "surf", hemi+"."+surf_name_option)):
+            print("[INFO] Found {}".format(hemi+"."+surf_name_option))
+            return surf_name_option
+        else:
+            print("[INFO] No {} file found".format(hemi+"."+surf_name_option))
+    else:
+        return None
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-lh', '--lh_overlay', type=str, required=True,
+                        help='Absolute path to the lh overlay file.')
+    parser.add_argument('-rh', '--rh_overlay', type=str, required=True,
+                        help='Absolute path to the rh overlay file.')
+    parser.add_argument('-sd', '--sdir', type=str, required=True,
+                        help='Absolute path to the subject directory from which surfaces will be loaded. '
+                             'This is assumed to contain the surface files in a surf/ sub-directory.')
+    parser.add_argument('-s', '--surf_name', type=str, default=None,
+                        help='Name of the surface file to load.')
+    parser.add_argument('-o', '--output_path', type=str, default='/tmp/whippersnapper_snap.png',
+                        help='Absolute path to the output file (snapshot image), '
+                             'if not running interactive mode.')
+    parser.add_argument('-c', '--caption', type=str, default='Super cool WhipperSnapper 2.0',
+                        help='Caption to place on the figure')
+    parser.add_argument('--fmax', type=float, default=4.0)
+    parser.add_argument('--fthresh', type=float, default=2.0)
+    parser.add_argument('-i', '--interactive', dest='interactive', action='store_true',
+                        help='Start an interactive session.')
+    args = parser.parse_args()
 
-
-    inspect_hemi=None
-
-    if inspect_hemi:
-        show_window(inspect_hemi,"lh.thickness", sdir="/Applications/freesurfer/7.3.2/subjects/")
+    if args.interactive:
+        show_window('lh', args.lh_overlay, sdir=args.sdir, surfname=args.surf_name)
     else:
-        snap4("../../lh.thickness","../../rh.thickness",
-              sdir="/Applications/freesurfer/7.3.2/subjects/",
-              caption="Super cool WhipperSnapper 2.0",fthresh=2,fmax=4.0,invert=False,
-              colorbar=True,
-              outpath="snap4.png")
+        snap4(args.lh_overlay, args.rh_overlay, sdir=args.sdir, caption=args.caption, surfname=args.surf_name,
+              fthresh=args.fthresh, fmax=args.fmax, invert=False, colorbar=True, outpath=args.output_path)
 
 
 

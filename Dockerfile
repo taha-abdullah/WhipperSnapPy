@@ -4,12 +4,13 @@ FROM ubuntu:22.04
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 python3-pip xvfb && \
   apt clean && \
-  rm -rf /var/libs/apt/lists/* /tmp/* /var/tmp/* \
-  pip3 install pyopengl glfw pillow numpy pyrr
+  rm -rf /var/libs/apt/lists/* /tmp/* /var/tmp/*
+
+# Install python packages
+RUN pip3 install pyopengl glfw pillow numpy pyrr
 
 COPY ./whippersnapper /whippersnapper
 
 WORKDIR /whippersnapper
 ENTRYPOINT ["xvfb-run","python3","whippersnapper.py"]
 CMD ["--help"]
-

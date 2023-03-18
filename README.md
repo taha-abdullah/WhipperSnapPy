@@ -19,11 +19,6 @@ pip3 install pyopengl glfw pillow numpy pyrr
 xvfb-run python3 whipersnapper.py ...
 ```
 
-## ToDo:
-
-- Add unit tests and automated testing 
-- Move to true off-screen rendering e.g. via EGL (preferred) or OSMesa
-
 ## Installation:
 
 The `whippersnapper` package can be installed from this repository using:

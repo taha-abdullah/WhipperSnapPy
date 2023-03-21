@@ -5,14 +5,16 @@
 The non-interactive mode (the default) creates an image that contains four
 views of the surface, a color bar, and a configurable caption.
 The interactive mode (--interactive) opens a simple GUI with a controllable
-view of one of the hemispheres.
+view of one of the hemispheres. In addition, the view through a separate
+configuration app which allows adjusting thresholds, etc. during runtime.
 
 Usage:
     $ python3 run_whippersnapper.py -lh $LH_OVERLAY_FILE -rh $RH_OVERLAY_FILE \
                                     -sd $SURF_SUBJECT_DIR -o $OUTPUT_PATH
 (See help for full list of arguments.)
 
-@Author     : Martin Reuter
+@Author1    : Martin Reuter
+@Author2    : Ahmed Faisal Abdelrahman
 @Created    : 16.03.2022
 
 """

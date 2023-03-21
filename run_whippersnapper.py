@@ -35,7 +35,7 @@ from whippersnapper.core import init_window, get_surf_name, prepare_geometry, se
 from whippersnapper.config_app import ConfigWindow
 
 
-## Global variables for app configuration state:
+# Global variables for config app configuration state:
 current_fthresh_ = None
 current_fmax_ = None
 app_window = None
@@ -122,13 +122,10 @@ def show_window(hemi, overlaypath, sdir=None, caption=None, invert=False,
 
         transformLoc = glGetUniformLocation(shader, "transform")
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, rot_y * viewLeft )
-        #rot_y = pyrr.Matrix44.from_y_rotation(0.8 * glfw.get_time())
 
         if glfw.get_key(window,glfw.KEY_RIGHT) == glfw.PRESS:
-            print('[DEBUG] Right button pressed!')
             ypos = ypos + 0.0004
         if glfw.get_key(window,glfw.KEY_LEFT) == glfw.PRESS:
-            print('[DEBUG] Left button pressed!')
             ypos = ypos - 0.0004
         rot_y = pyrr.Matrix44.from_y_rotation(ypos)
 
@@ -169,14 +166,13 @@ if __name__ == "__main__":
         current_fthresh_ = args.fthresh
         current_fmax_ = args.fmax
 
+        # Starting interactive OpenGL window in a separate thread:
         thread = threading.Thread(target=show_window,
                                   args=('lh', args.lh_overlay, args.sdir, None, False,
                                         'cortex.label', args.surf_name, 'curv'))
         thread.start()
 
-        ## Setting Up and Running Config Window
-        ## ===============================================================
-
+        # Setting up and running config app window (must be main thread):
         app = QApplication([])
         app.setStyle('Fusion')                             # the default
 

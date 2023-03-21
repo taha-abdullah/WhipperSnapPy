@@ -18,16 +18,16 @@ class ConfigWindow(QWidget):
 
         layout = QVBoxLayout()
 
-        self.slider_tick_limits = (0.0, 1000.0)
-        self.slider_value_limits = (0.0, 10.0)
+        self.fthresh_slider_tick_limits = (0.0, 1000.0)
+        self.fthresh_slider_value_limits = (0.0, 10.0)
         self.fthresh_slider = QSlider(Qt.Horizontal)
-        self.fthresh_slider.setMinimum(int(self.slider_tick_limits[0]))
-        self.fthresh_slider.setMaximum(int(self.slider_tick_limits[1]))
+        self.fthresh_slider.setMinimum(int(self.fthresh_slider_tick_limits[0]))
+        self.fthresh_slider.setMaximum(int(self.fthresh_slider_tick_limits[1]))
         self.fthresh_slider.setValue(int(self.convert_value_to_range(self.current_fthresh_value, 
-                                                                  self.slider_value_limits, 
-                                                                  self.slider_tick_limits)))
+                                                                  self.fthresh_slider_value_limits,
+                                                                  self.fthresh_slider_tick_limits)))
         self.fthresh_slider.setTickPosition(QSlider.TicksBelow)
-        self.fthresh_slider.setTickInterval(int((self.slider_tick_limits[1] - self.slider_tick_limits[0]) / 20.))
+        self.fthresh_slider.setTickInterval(int((self.fthresh_slider_tick_limits[1] - self.fthresh_slider_tick_limits[0]) / 20.))
         self.fthresh_slider.valueChanged.connect(self.fthresh_slider_value_cb)
 
         self.fthresh_value_box = QLineEdit('Threshold')
@@ -84,8 +84,8 @@ class ConfigWindow(QWidget):
 
     def fthresh_slider_value_cb(self):
         self.current_fthresh_value = self.convert_value_to_range(self.fthresh_slider.value(),
-                                                                 self.slider_tick_limits, 
-                                                                 self.slider_value_limits)
+                                                                 self.fthresh_slider_tick_limits, 
+                                                                 self.fthresh_slider_value_limits)
         self.fthresh_value_box.setText(str(self.current_fthresh_value))
 
     def fthresh_value_cb(self, new_value):
@@ -98,14 +98,14 @@ class ConfigWindow(QWidget):
         self.current_fthresh_value = float(new_value)
 
         slider_fthresh_value = self.convert_value_to_range(self.current_fthresh_value,
-                                                           self.slider_value_limits, 
-                                                           self.slider_tick_limits)
+                                                           self.fthresh_slider_value_limits, 
+                                                           self.fthresh_slider_tick_limits)
         self.fthresh_slider.setValue(int(slider_fthresh_value))
 
     def fmax_slider_value_cb(self):
         self.current_fmax_value = self.convert_value_to_range(self.fmax_slider.value(),
-                                                              self.slider_tick_limits, 
-                                                              self.slider_value_limits)
+                                                              self.fmax_slider_tick_limits, 
+                                                              self.fmax_slider_value_limits)
         self.fmax_value_box.setText(str(self.current_fmax_value))
 
     def fmax_value_cb(self, new_value):
@@ -118,8 +118,8 @@ class ConfigWindow(QWidget):
         self.current_fmax_value = float(new_value)
 
         slider_fmax_value = self.convert_value_to_range(self.current_fmax_value,
-                                                        self.slider_value_limits, 
-                                                        self.slider_tick_limits)
+                                                        self.fmax_slider_value_limits, 
+                                                        self.fmax_slider_tick_limits)
         self.fmax_slider.setValue(int(slider_fmax_value))
 
     def convert_value_to_range(self, value, old_limits, new_limits):

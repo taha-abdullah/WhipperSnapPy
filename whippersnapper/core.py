@@ -113,7 +113,7 @@ def rescale_overlay(values, minval=None, maxval=None):
     if maxval < 0 or minval < 0:
         print("resacle_overlay ERROR: min and maxval should both be positive!")
         exit(1)
-    print("Using min {:.2f} and max {:.2f}".format(minval,maxval))
+    # print("Using min {:.2f} and max {:.2f}".format(minval,maxval))
     # rescale map symetrically to -1 .. 1 (keeping minval at 0)
     # mask values below minval 
     values[valabs<minval] = np.nan

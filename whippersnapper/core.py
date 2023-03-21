@@ -1,4 +1,15 @@
 
+"""Contains the core functionalities of WhipperSnapper.
+
+Dependencies:
+    numpy, glfw, pyrr, PyOpenGL, pillow
+
+@Author    : Martin Reuter
+@Created   : 27.02.2022
+@Revised   : 16.03.2022
+
+"""
+
 import os
 import sys
 import math

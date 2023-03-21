@@ -17,9 +17,125 @@ Usage:
 
 """
 
+import os
+import math
+import sys
+import signal
 import argparse
+import threading
 
-from whippersnapper.core import show_window, snap4
+import glfw
+import pyrr
+from OpenGL.GL import *
+from PyQt5.QtWidgets import QApplication
+
+from whippersnapper.core import init_window, get_surf_name, prepare_geometry, setup_shader, snap4
+from whippersnapper.config_app import ConfigWindow
+
+
+## Global variables for app configuration state:
+current_fthresh_ = None
+current_fmax_ = None
+app_window = None
+
+
+def show_window(hemi, overlaypath, sdir=None, caption=None, invert=False, 
+                labelname="cortex.label", surfname=None, curvname="curv"):
+    """
+    Starts an interactive window in which an overlay can be viewed.
+
+    Parameters
+    ----------
+    hemi: str
+        Hemisphere; one of: ['lh', 'rh']
+    overlaypath: str
+        Path to the overlay file for the specified hemi (FreeSurfer format)
+    sdir: str
+       Subject dir containing surf files
+    caption: str
+       Caption text to be placed on the image
+    invert: bool
+       Invert color (blue positive, red negative)
+    labelname: str
+       Label for masking, usually cortex.label
+    surfname: str
+       Surface to display values on, usually pial_semi_inflated from fsaverage
+    curvname: str
+       Curvature file for texture in non-colored regions (default curv)
+
+    Returns
+    -------
+    None
+    """
+    global current_fthresh_, current_fmax_
+
+    wwidth=720
+    wheight=600
+    window = init_window(wwidth,wheight,"WhipperSnapper 2.0",visible=True)
+    if not window:
+        return False
+
+    if surfname is None:
+        print("[INFO] No surf_name provided. Looking for options in surf directory...")
+        found_surfname = get_surf_name(sdir, hemi)
+        if found_surfname is None:
+            print("[ERROR] Could not find a valid surf file in {} for hemi: {}!".format(sdir, hemi))
+            sys.exit(0)
+        meshpath = os.path.join(sdir,"surf",hemi+"."+found_surfname)
+    else:
+        meshpath = os.path.join(sdir,"surf",hemi+"."+surfname)
+
+    curvpath = None
+    if curvname:
+        curvpath = os.path.join(sdir,"surf",hemi+"."+curvname)
+    labelpath = None
+    if labelname:
+        labelpath = os.path.join(sdir,"label",hemi+"."+labelname)
+
+    # set up matrices to show object left and right side:
+    rot_z = pyrr.Matrix44.from_z_rotation(-0.5 * math.pi)
+    rot_x = pyrr.Matrix44.from_x_rotation(0.5 * math.pi)
+    viewLeft = rot_x * rot_z
+    rot_y = pyrr.Matrix44.from_y_rotation(math.pi)
+    viewRight = rot_y * viewLeft
+    rot_y = pyrr.Matrix44.from_y_rotation(0) 
+
+    print()
+    print("Keys:")
+    print("Left - Right : Rotate Geometry")
+    print("ESC          : Quit")
+    print()
+
+    ypos = 0
+    while glfw.get_key(window,glfw.KEY_ESCAPE) != glfw.PRESS and not glfw.window_should_close(window):
+        glfw.poll_events()
+ 
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        if app_window is not None:
+            current_fthresh_ = app_window.get_fthresh_value()
+            current_fmax_ = app_window.get_fmax_value()
+        meshdata, triangles, fthresh, fmax, neg = prepare_geometry(meshpath, overlaypath, curvpath, labelpath, current_fthresh_, current_fmax_)
+        shader = setup_shader(meshdata, triangles, wwidth, wheight)
+
+        transformLoc = glGetUniformLocation(shader, "transform")
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, rot_y * viewLeft )
+        #rot_y = pyrr.Matrix44.from_y_rotation(0.8 * glfw.get_time())
+
+        if glfw.get_key(window,glfw.KEY_RIGHT) == glfw.PRESS:
+            print('[DEBUG] Right button pressed!')
+            ypos = ypos + 0.0004
+        if glfw.get_key(window,glfw.KEY_LEFT) == glfw.PRESS:
+            print('[DEBUG] Left button pressed!')
+            ypos = ypos - 0.0004
+        rot_y = pyrr.Matrix44.from_y_rotation(ypos)
+
+        # Draw 
+        glDrawElements(GL_TRIANGLES,triangles.size, GL_UNSIGNED_INT,  None)
+ 
+        glfw.swap_buffers(window)
+
+    glfw.terminate()
 
 
 if __name__ == "__main__":

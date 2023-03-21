@@ -160,11 +160,33 @@ if __name__ == "__main__":
                         help='Start an interactive session.')
     args = parser.parse_args()
 
-    if args.interactive:
-        show_window('lh', args.lh_overlay, sdir=args.sdir, surfname=args.surf_name)
-    else:
+    if not args.interactive:
         snap4(args.lh_overlay, args.rh_overlay, sdir=args.sdir, caption=args.caption, surfname=args.surf_name,
               fthresh=args.fthresh, fmax=args.fmax, invert=False, colorbar=True, outpath=args.output_path)
+    else:
+        current_fthresh_ = args.fthresh
+        current_fmax_ = args.fmax
+
+        thread = threading.Thread(target=show_window,
+                                  args=('lh', args.lh_overlay, args.sdir, None, False,
+                                        'cortex.label', args.surf_name, 'curv'))
+        thread.start()
+
+        ## Setting Up and Running Config Window
+        ## ===============================================================
+
+        app = QApplication([])
+        app.setStyle('Fusion')                             # the default
+
+        screen_geometry = app.primaryScreen().availableGeometry()
+        app_window = ConfigWindow(screen_dims=(screen_geometry.width(),
+                                               screen_geometry.height()))
+
+        # The following is a way to allow CTRL+C termination of the app:
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+        app_window.show()
+        app.exec()
 
 
 # headless docker test using xvfb:

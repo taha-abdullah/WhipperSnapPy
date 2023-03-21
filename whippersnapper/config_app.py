@@ -7,11 +7,12 @@ from PyQt5.QtCore import Qt
 
 
 class ConfigWindow(QWidget):
-    def __init__(self, parent=None, screen_dims=None):
+    def __init__(self, parent=None, screen_dims=None, initial_fthresh_value=2.0,
+                 initial_fmax_value=4.0):
         super(ConfigWindow, self).__init__(parent)
 
-        self.current_fthresh_value = 2.0
-        self.current_fmax_value = 4.0
+        self.current_fthresh_value = initial_fthresh_value
+        self.current_fmax_value = initial_fmax_value
         self.screen_dims = screen_dims
         self.window_size = (400, 200)
 

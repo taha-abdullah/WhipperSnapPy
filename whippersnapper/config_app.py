@@ -81,11 +81,6 @@ class ConfigWindow(QWidget):
         else:
             self.setGeometry(0, 0, self.window_size[0], self.window_size[1])
 
-    def test_button_cb(self):
-        alert = QMessageBox()
-        alert.setText('Test button clicked!')
-        alert.exec()
-
     def fthresh_slider_value_cb(self):
         self.current_fthresh_value = self.convert_value_to_range(self.fthresh_slider.value(),
                                                                  self.slider_tick_limits, 

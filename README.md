@@ -28,6 +28,21 @@ python3 -m pip install .
 
 ## Usage:
 
+### Local:
+
+After installing the Python package, the whippersnapper program can be run using
+the installed command line tool such as in the following example:
+```
+whippersnapper -lh $OVERLAY_DIR/$LH_OVERLAY_FILE \
+               -rh $OVERLAY_DIR/$RH_OVERLAY_FILE \
+               -sd $SURF_SUBJECT_DIR \
+               -o $OUTPUT_DIR/whippersnapper_image.png \
+```
+
+Note that adding the `--interactive` flag will start an interactive GUI that
+includes a visualization of one hemisphere side and a simple application through
+which color threshold values can be configured.
+
 ### Docker:
 
 The whippersnapper program can be run within a docker container to capture

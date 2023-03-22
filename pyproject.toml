@@ -87,6 +87,9 @@ include-package-data = false
 include = ['whippersnapper*']
 exclude = ['whippersnapper*tests']
 
+[tool.setuptools.package-data]
+whippersnapper = ['*.ttf']
+
 [tool.black]
 line-length = 88
 target-version = ['py38']

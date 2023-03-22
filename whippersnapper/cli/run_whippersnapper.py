@@ -38,7 +38,7 @@ from whippersnapper.config_app import ConfigWindow
 # Global variables for config app configuration state:
 current_fthresh_ = None
 current_fmax_ = None
-app_window = None
+app_window_ = None
 
 
 def show_window(hemi, overlaypath, sdir=None, caption=None, invert=False, 
@@ -69,7 +69,7 @@ def show_window(hemi, overlaypath, sdir=None, caption=None, invert=False,
     -------
     None
     """
-    global current_fthresh_, current_fmax_
+    global current_fthresh_, current_fmax_, app_window_
 
     wwidth=720
     wheight=600
@@ -114,9 +114,9 @@ def show_window(hemi, overlaypath, sdir=None, caption=None, invert=False,
  
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        if app_window is not None:
-            current_fthresh_ = app_window.get_fthresh_value()
-            current_fmax_ = app_window.get_fmax_value()
+        if app_window_ is not None:
+            current_fthresh_ = app_window_.get_fthresh_value()
+            current_fmax_ = app_window_.get_fmax_value()
         meshdata, triangles, fthresh, fmax, neg = prepare_geometry(meshpath, overlaypath, curvpath, labelpath, current_fthresh_, current_fmax_)
         shader = setup_shader(meshdata, triangles, wwidth, wheight)
 
@@ -137,7 +137,9 @@ def show_window(hemi, overlaypath, sdir=None, caption=None, invert=False,
     glfw.terminate()
 
 
-if __name__ == "__main__":
+def run():
+    global current_fthresh_, current_fmax_, app_window_
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-lh', '--lh_overlay', type=str, required=True,
                         help='Absolute path to the lh overlay file.')
@@ -177,13 +179,13 @@ if __name__ == "__main__":
         app.setStyle('Fusion')                             # the default
 
         screen_geometry = app.primaryScreen().availableGeometry()
-        app_window = ConfigWindow(screen_dims=(screen_geometry.width(),
+        app_window_ = ConfigWindow(screen_dims=(screen_geometry.width(),
                                                screen_geometry.height()))
 
         # The following is a way to allow CTRL+C termination of the app:
         signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-        app_window.show()
+        app_window_.show()
         app.exec()
 
 

@@ -78,7 +78,7 @@ source = 'https://github.com/Deep-MI/WhipperSnapper'
 tracker = 'https://github.com/Deep-MI/WhipperSnapper/issues'
 
 [project.scripts]
-whippersnapper-sys_info = 'whippersnapper.commands.sys_info:run'
+whippersnapper = 'whippersnapper.cli:run'
 
 [tool.setuptools]
 include-package-data = false

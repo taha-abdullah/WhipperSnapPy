@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   rm -rf /var/libs/apt/lists/* /tmp/* /var/tmp/*
 
 # Install python packages
-RUN pip3 install pyopengl glfw pillow numpy pyrr
+RUN pip3 install pyopengl glfw pillow numpy pyrr PyQt5==5.15.6
 
 COPY . /WhipperSnapPy
 RUN pip3 install /WhipperSnapPy

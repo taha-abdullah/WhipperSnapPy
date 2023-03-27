@@ -1,5 +1,5 @@
 
-"""Contains the core functionalities of WhipperSnapper.
+"""Contains the core functionalities of WhipperSnapPy.
 
 Dependencies:
     numpy, glfw, pyrr, PyOpenGL, pillow
@@ -527,7 +527,7 @@ def snap4(lhoverlaypath, rhoverlaypath, fthresh=None, fmax=None, sdir=None,
     wwidth=540
     wheight=450
     visible=False
-    window = init_window(wwidth,wheight,"WhipperSnapper 2.0",visible)
+    window = init_window(wwidth,wheight,"WhipperSnapPy 2.0",visible)
     if not window:
         return False # need raise error here in future
 

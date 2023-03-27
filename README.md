@@ -15,8 +15,9 @@ server, inside Docker, or via ssh we recommend to install xvfb and run
 
 ```
 apt update && apt install -y python3 python3-pip xvfb
-pip3 install pyopengl glfw pillow numpy pyrr
-xvfb-run python3 whipersnap.py ...
+pip3 install pyopengl glfw pillow numpy pyrr PyQt5==5.15.6
+pip3 install .
+xvfb-run whippersnap ...
 ```
 
 ## Installation:
@@ -34,9 +35,9 @@ After installing the Python package, the whippersnap program can be run using
 the installed command line tool such as in the following example:
 ```
 whippersnap -lh $OVERLAY_DIR/$LH_OVERLAY_FILE \
-               -rh $OVERLAY_DIR/$RH_OVERLAY_FILE \
-               -sd $SURF_SUBJECT_DIR \
-               -o $OUTPUT_DIR/whippersnappy_image.png \
+            -rh $OVERLAY_DIR/$RH_OVERLAY_FILE \
+            -sd $SURF_SUBJECT_DIR \
+            -o $OUTPUT_DIR/whippersnappy_image.png \
 ```
 
 Note that adding the `--interactive` flag will start an interactive GUI that

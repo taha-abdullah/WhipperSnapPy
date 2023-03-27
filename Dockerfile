@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install python packages
 RUN pip3 install pyopengl glfw pillow numpy pyrr
 
-COPY ./whippersnapper /whippersnapper
+COPY . /WhipperSnapPy
+RUN pip3 install /WhipperSnapPy
 
-WORKDIR /whippersnapper
-ENTRYPOINT ["xvfb-run","python3","whippersnapper.py"]
+ENTRYPOINT ["xvfb-run","whippersnap"]
 CMD ["--help"]

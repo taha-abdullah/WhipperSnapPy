@@ -1,7 +1,7 @@
 
 """Contains the configuration application.
 
-The config app enables adjusting parameters of the whippersnapper program
+The config app enables adjusting parameters of the whippersnappy program
 during runtime using a simple GUI window.
 
 Dependencies:
@@ -102,7 +102,7 @@ class ConfigWindow(QWidget):
         layout.addWidget(thresholds_box)
 
         # Main window configurations:
-        self.setWindowTitle('WhipperSnapper Configuration')
+        self.setWindowTitle('WhipperSnapPy Configuration')
         self.setLayout(layout)
         if self.screen_dims is not None:
             self.setGeometry(screen_dims[0] - int(screen_dims[0] / 5), 

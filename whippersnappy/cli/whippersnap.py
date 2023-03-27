@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-"""Executes the whippersnapper program in an interactive or non-interactive mode.
+"""Executes the whippersnappy program in an interactive or non-interactive mode.
 
 The non-interactive mode (the default) creates an image that contains four
 views of the surface, a color bar, and a configurable caption.
@@ -9,8 +9,8 @@ view of one of the hemispheres. In addition, the view through a separate
 configuration app which allows adjusting thresholds, etc. during runtime.
 
 Usage:
-    $ python3 run_whippersnapper.py -lh $LH_OVERLAY_FILE -rh $RH_OVERLAY_FILE \
-                                    -sd $SURF_SUBJECT_DIR -o $OUTPUT_PATH
+    $ python3 whippersnap.py -lh $LH_OVERLAY_FILE -rh $RH_OVERLAY_FILE \
+                             -sd $SURF_SUBJECT_DIR -o $OUTPUT_PATH
 (See help for full list of arguments.)
 
 @Author1    : Martin Reuter
@@ -31,8 +31,8 @@ import pyrr
 from OpenGL.GL import *
 from PyQt5.QtWidgets import QApplication
 
-from whippersnapper.core import init_window, get_surf_name, prepare_geometry, setup_shader, snap4
-from whippersnapper.config_app import ConfigWindow
+from whippersnappy.core import init_window, get_surf_name, prepare_geometry, setup_shader, snap4
+from whippersnappy.config_app import ConfigWindow
 
 
 # Global variables for config app configuration state:
@@ -73,7 +73,7 @@ def show_window(hemi, overlaypath, sdir=None, caption=None, invert=False,
 
     wwidth=720
     wheight=600
-    window = init_window(wwidth,wheight,"WhipperSnapper 2.0",visible=True)
+    window = init_window(wwidth,wheight,"WhipperSnapPy 2.0",visible=True)
     if not window:
         return False
 
@@ -150,10 +150,10 @@ def run():
                              'This is assumed to contain the surface files in a surf/ sub-directory.')
     parser.add_argument('-s', '--surf_name', type=str, default=None,
                         help='Name of the surface file to load.')
-    parser.add_argument('-o', '--output_path', type=str, default='/tmp/whippersnapper_snap.png',
+    parser.add_argument('-o', '--output_path', type=str, default='/tmp/whippersnappy_snap.png',
                         help='Absolute path to the output file (snapshot image), '
                              'if not running interactive mode.')
-    parser.add_argument('-c', '--caption', type=str, default='Super cool WhipperSnapper 2.0',
+    parser.add_argument('-c', '--caption', type=str, default='Super cool WhipperSnapPy 2.0',
                         help='Caption to place on the figure')
     parser.add_argument('--fmax', type=float, default=4.0)
     parser.add_argument('--fthresh', type=float, default=2.0)

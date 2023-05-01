@@ -27,19 +27,21 @@ from .read_geometry import read_geometry, read_morph_data, read_mgh_data
 
 def normalize_mesh(v, scale=1.0):
     """
-    [MISSING]
+    Normalizes mesh vertex coordinates, so that their bounding box
+    is centered at the origin and its longest side-length is equal
+    to the scale variable (default 1).
 
     Parameters
     ----------
     v: numpy.ndarray
-        Vertex array
+        Vertex array (Nvert X 3)
     scale: float
         Scaling constant
 
     Returns
     -------
     v: numpy.ndarray
-        Normalized vertex array
+        Normalized vertex array (Nvert X 3)
     """
     # center bounding box at origin
     # scale longest side to scale (default 1)
@@ -56,20 +58,20 @@ def vertex_normals(v,t):
 
     Triangle normals around each vertex are averaged, weighted by the angle 
     that they contribute.
-    Ordering is important: counterclockwise when looking at the triangle 
-    from above.
+    Vertex ordering is important in t: counterclockwise when looking at the 
+    triangle from above, so that normals point outwards. 
 
     Parameters
     ----------
     v: numpy.ndarray
-        Vertex array
+        Vertex array (Nvert X 3)
     t: numpy.ndarray
-        Triangle array
+        Triangle array (Ntria X 3)
 
     Returns
     -------
     normals: numpy.ndarray
-        Normals array: n - normals (num vertices X 3 )
+        Normals array: n - normals (Nvert X 3)
     """
     # Compute vertex coordinates and a difference vector for each triangle:
     v0 = v[t[:, 0], :]
@@ -97,19 +99,23 @@ def vertex_normals(v,t):
 
 def heat_color(values,invert=False):
     """
-    [MISSING]
+    Converts an array of float values into RBG heat color values. 
+    Only values between -1 and 1 will receive gradient and colors will
+    max-out at -1 and 1. Negative values will be blue and positive
+    red (unless invert is passed to flip the heatmap). Masked values 
+    (nan) will map to masked colors (nan,nan,nan). 
 
     Parameters
     ----------
     values: numpy.ndarray
-        [MISSING]
+        float values of function on the surface mesh (length Nvert)
     invert: bool
-        [MISSING]
+        whether to invert the heat map (blue is positive and red negative)
 
     Returns
     -------
     colors: numpy.ndarray
-        [MISSING]
+        (Nvert x 3) array of RGB of heat map as 0.0 .. 1.0 floats
     """
     # values (1 dim array length n) will receive gradient between -1 and 1
     # nan will return (nan,nan,nan)
@@ -140,7 +146,7 @@ def heat_color(values,invert=False):
 
 def rescale_overlay(values, minval=None, maxval=None):
     """
-    Rescales values for color computation.
+    Rescales values for color map computation.
     minval and maxval are two positive floats (maxval>minval).
     Values between -minval and minval will be masked (np.nan);
     others will be shifted towards zero (from both sides)
@@ -149,7 +155,7 @@ def rescale_overlay(values, minval=None, maxval=None):
     Parameters
     ----------
     values: numpy.ndarray
-        [MISSING]
+        float values of function on the surface (length Nvert)
     minval: float
         Minimum value
     maxval: float
@@ -158,13 +164,13 @@ def rescale_overlay(values, minval=None, maxval=None):
     Returns
     -------
     values: numpy.ndarray
-        [MISSING]
+        float array of input function on mesh (length Nvert)
     minval: float
-        Minimum value
+        positive minimum value (crop values whose absolute value is below)
     maxval: float
-        Maximum value
-    [MISSING]: bool
-        [MISSING]
+        positive maximum value (saturate color at maxval and -maxval)
+    neg: bool
+        whether negative values are present at all after cropping
     """
     valsign = np.sign(values)
     valabs = np.abs(values)
@@ -195,7 +201,7 @@ def binary_color(values, thres, color_low, color_high):
     Parameters
     ----------
     values: numpy.ndarray
-        [MISSING] (a 1-dim array)
+        input vertex function as float array (length Nvert)
     thres: float
         Threshold value
     color_low: float or numpy.ndarray
@@ -226,14 +232,14 @@ def mask_label(values,labelpath=None):
     Parameters
     ----------
     values: numpy.ndarray
-        [MISSING] (a 1-dim array)
+        float values of function defined at vertices (a 1-dim array)
     labelpath: str
         Absolute path to label file
 
     Returns
     -------
     values: numpy.ndarray
-        [MISSING]
+        masked surface function values
     """
     if not labelpath:
         return values
@@ -247,7 +253,11 @@ def mask_label(values,labelpath=None):
 def prepare_geometry(surfpath, overlaypath=None, curvpath=None, labelpath=None, 
                      minval=None, maxval=None, invert=False):
     """
-    Prepare meshdata and triangles.
+    Prepare meshdata for upload to GPU. 
+    Vertex coordinates, vertex normals and color values are concatenated into
+    large vertexdata array. Also returns trianges, minium and maximum overlay
+    values as well as whether negative values are present or not. 
+    triangles 
 
     Parameters
     ----------
@@ -269,15 +279,16 @@ def prepare_geometry(surfpath, overlaypath=None, curvpath=None, labelpath=None,
     Returns
     -------
     vertexdata: numpy.ndarray
-        [MISSING]
+        Concatenated array with vertex coords, vertex normals and colors
+        as a (Nvert X 9) float32 array
     triangles: numpy.ndarray
-        [MISSING]
+        triangle array as a (Ntria X 3) uint32 array
     fmin: float
-        Minimum value
+        Minimum value of overlay function after rescale
     fmax: float
-        Maximum value
+        Maximum value of overlay function after rescale
     neg: bool
-        [MISSING]
+        Whether negative values are there after rescale/cropping
     """
 
     # read vertices and triangels
@@ -369,7 +380,8 @@ def init_window(width,height,title="PyOpenGL",visible=True):
 
 def setup_shader(meshdata, triangles, width, height):
     """
-    [MISSING]
+    Creates vertex and fragment shaders and sets up data and parameters
+    (such as the initial view matrix) on the GPU
 
     In meshdata:
       - the first 3 columns are the vertex coordinates
@@ -390,7 +402,7 @@ def setup_shader(meshdata, triangles, width, height):
     Returns
     -------
     shader: ShaderProgram
-        [MISSING]
+        Compiled OpenGL shader program
     """
 
     VERTEX_SHADER = """
@@ -574,7 +586,8 @@ def capture_window(width,height):
 
 def create_colorbar(fmin,fmax,invert,neg=True,font_file=None):
     """
-    [MISSING]
+    Create colorbar into an image with text describing min and max
+    values. 
 
     Parameters
     ----------

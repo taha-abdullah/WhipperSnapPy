@@ -4,8 +4,8 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'whippersnappy'
-version = '1.0.0'
-description = 'A package to plot and capture FreeSurfer-style surface overlays.'
+version = '1.1.0-dev'
+description = 'A package to plot and capture FastSurfer and FreeSurfer-style surface overlays.'
 readme = 'README.md'
 license = {file = 'LICENSE'}
 requires-python = '>=3.8'

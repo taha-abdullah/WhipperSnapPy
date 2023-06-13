@@ -43,7 +43,9 @@ from whippersnappy.core import (
 # Global variables for config app configuration state:
 current_fthresh_ = None
 current_fmax_ = None
+app_ = None
 app_window_ = None
+app_window_closed_ = False
 
 
 def show_window(
@@ -83,7 +85,7 @@ def show_window(
     -------
     None
     """
-    global current_fthresh_, current_fmax_, app_window_
+    global current_fthresh_, current_fmax_, app_, app_window_, app_window_closed_
 
     wwidth = 720
     wheight = 600
@@ -135,6 +137,10 @@ def show_window(
     while glfw.get_key(
         window, glfw.KEY_ESCAPE
     ) != glfw.PRESS and not glfw.window_should_close(window):
+        # Terminate if config app window was closed:
+        if app_window_closed_:
+            break
+
         glfw.poll_events()
 
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
@@ -173,10 +179,16 @@ def show_window(
         glfw.swap_buffers(window)
 
     glfw.terminate()
+    app_.quit()
+
+
+def config_app_exit_handler():
+    global app_window_closed_
+    app_window_closed_ = True
 
 
 def run():
-    global current_fthresh_, current_fmax_, app_window_
+    global current_fthresh_, current_fmax_, app_, app_window_
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -277,10 +289,11 @@ def run():
         thread.start()
 
         # Setting up and running config app window (must be main thread):
-        app = QApplication([])
-        app.setStyle("Fusion")  # the default
+        app_ = QApplication([])
+        app_.setStyle("Fusion")  # the default
+        app_.aboutToQuit.connect(config_app_exit_handler)
 
-        screen_geometry = app.primaryScreen().availableGeometry()
+        screen_geometry = app_.primaryScreen().availableGeometry()
         app_window_ = ConfigWindow(
             screen_dims=(screen_geometry.width(), screen_geometry.height()),
             initial_fthresh_value=current_fthresh_,
@@ -291,7 +304,7 @@ def run():
         signal.signal(signal.SIGINT, signal.SIG_DFL)
 
         app_window_.show()
-        app.exec()
+        app_.exec()
 
 
 # headless docker test using xvfb:

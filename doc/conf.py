@@ -12,20 +12,18 @@ from datetime import date
 from importlib import import_module
 from typing import Dict, Optional
 
-import whippersnappy
-
 # from sphinx_gallery.sorting import FileNameSortKey
 
+import whippersnappy
 
-project = "whippersnappy"
+project = "WhipperSnapPy"
 author = "Martin Reuter"
 copyright = f"{date.today().year}, {author}"
 release = whippersnappy.__version__
 package = whippersnappy.__name__
 gh_url = "https://github.com/Deep-MI/WhipperSnapPy"
 
-
-# -- general configuration ---------------------------------------------------
+# -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -35,40 +33,20 @@ needs_sphinx = "5.0"
 # the root toctree directive.
 root_doc = "index"
 
-# -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
-
+# Add any Sphinx extension module names here, as strings. They can be
+# extensions coming with Sphinx (named "sphinx.ext.*") or your custom
+# ones.
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
     "sphinx.ext.linkcode",
+    "numpydoc",
     "sphinxcontrib.bibtex",
     "sphinx_copybutton",
     "sphinx_design",
-    "IPython.sphinxext.ipython_console_highlighting",
-    "numpydoc",
 ]
-
-# Backup extensions
-# "sphinxcontrib.napoleon",
-#   "sphinx.ext.napoleon",
-#  "sphinx_gallery.gen_gallery",
-
-
-numpydoc_show_class_members = False
-
-# Whether to create a Sphinx table of contents for the lists of class methods and attributes. If a table of contents is made,
-# Sphinx expects each entry to have a separate page. True by default.
-# numpydoc_class_members_toctree = False
-
-
-# Napoleon settings
-# I added these two lines because i added sphinx.ext.napolon in the extension after
-# Commenting out sphinxcontrib.napoleon in the extension
-# napoleon_google_docstring = False
-# napoleon_numpy_docstring = True
 
 templates_path = ["_templates"]
 exclude_patterns = [
@@ -76,11 +54,9 @@ exclude_patterns = [
     "Thumbs.db",
     ".DS_Store",
     "**.ipynb_checkpoints",
-    "tutorials/examples/README.rst",
 ]
 
 # Sphinx will warn about all references where the target cannot be found.
-# nitpicky = True
 nitpicky = False
 nitpick_ignore = []
 
@@ -94,12 +70,10 @@ default_role = "py:obj"
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
-
 html_theme = "furo"
 html_static_path = ["_static"]
 html_title = project
 html_show_sphinx = False
-
 
 # Documentation to change footer icons:
 # https://pradyunsg.me/furo/customisation/footer/#changing-footer-icons
@@ -118,7 +92,6 @@ html_theme_options = {
     ],
 }
 
-
 # -- autosummary -------------------------------------------------------------
 autosummary_generate = True
 
@@ -127,7 +100,6 @@ autodoc_typehints = "none"
 autodoc_member_order = "groupwise"
 autodoc_warningiserror = True
 autoclass_content = "class"
-
 
 # -- intersphinx -------------------------------------------------------------
 intersphinx_mapping = {
@@ -139,15 +111,58 @@ intersphinx_mapping = {
     "scipy": ("https://docs.scipy.org/doc/scipy", None),
     "sklearn": ("https://scikit-learn.org/stable/", None),
 }
-
 intersphinx_timeout = 5
-
 
 # -- sphinx-issues -----------------------------------------------------------
 issues_github_path = gh_url.split("https://github.com/")[-1]
 
 # -- autosectionlabels -------------------------------------------------------
 autosectionlabel_prefix_document = True
+
+# -- numpydoc ----------------------------------------------------------------
+# Whether to create a Sphinx table of contents for the lists of class methods and attributes.
+# If a table of contents is made, Sphinx expects each entry to have a separate page. True by default.
+#numpydoc_class_members_toctree = False
+#numpydoc_attributes_as_param_list = False
+numpydoc_show_class_members = False
+
+# x-ref
+numpydoc_xref_param_type = True
+numpydoc_xref_aliases = {
+    # Matplotlib
+    "Axes": "matplotlib.axes.Axes",
+    "Figure": "matplotlib.figure.Figure",
+    # Python
+    "bool": ":class:`python:bool`",
+    "Path": "pathlib.Path",
+    "TextIO": "io.TextIOBase",
+    # Scipy
+    "csc_matrix": "scipy.sparse.csc_matrix",
+}
+#numpydoc_xref_ignore = {}
+
+# validation
+# https://numpydoc.readthedocs.io/en/latest/validation.html#validation-checks
+error_ignores = {
+    "GL01",  # docstring should start in the line immediately after the quotes
+    "EX01",  # section 'Examples' not found
+    "ES01",  # no extended summary found
+    "SA01",  # section 'See Also' not found
+    "RT02",  # The first line of the Returns section should contain only the type, unless multiple values are being returned  # noqa
+}
+numpydoc_validate = True
+numpydoc_validation_checks = {"all"} | set(error_ignores)
+numpydoc_validation_exclude = {  # regex to ignore during docstring check
+    r"\.__getitem__",
+    r"\.__contains__",
+    r"\.__hash__",
+    r"\.__mul__",
+    r"\.__sub__",
+    r"\.__add__",
+    r"\.__iter__",
+    r"\.__div__",
+    r"\.__neg__",
+}
 
 # -- sphinxcontrib-bibtex ----------------------------------------------------
 bibtex_bibfiles = ["./references.bib"]
@@ -217,14 +232,12 @@ def linkcode_resolve(domain: str, info: Dict[str, str]) -> Optional[str]:
 # }
 
 
-import os
-
 # -- make sure pandoc gets installed -----------------------------------------
 from inspect import getsourcefile
+import os
 
 # Get path to directory containing this file, conf.py.
 DOCS_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
-
 
 def ensure_pandoc_installed(_):
     import pypandoc
@@ -241,7 +254,6 @@ def ensure_pandoc_installed(_):
         delete_installer=True,
     )
 
-
 def setup(app):
     app.connect("builder-inited", ensure_pandoc_installed)
 
@@ -252,12 +264,9 @@ def setup(app):
 #         'actions',
 #         # Add other method names to skip here
 #     ]
-
 #     print("autodoc_skip_member called with:", what, name)
-
 #     # Check if the member is a method and in the list of methods to skip
 #     if what == 'method' and name in methods_to_skip:
 #         print("Skipping method:", name)
 #         return True
-
 #     return None

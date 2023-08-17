@@ -118,9 +118,8 @@ extend-exclude = '''
       __pycache__
     | .github
     | setup.py
-    | data/
     | doc/
-    | examples/
+    | whippersnappy/read_geometry.py
 )
 '''
 

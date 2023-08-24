@@ -67,6 +67,11 @@ In this example: `$SURF_SUBJECT_DIR` contains the surface files, `$OVERLAY_DIR` 
 
 **Note:** The `--init` flag is needed for the `xvfb-run` tool to be used correctly.
 
+
+## API Documentation
+
+The API Documentation can be found at https://deep-mi.org/WhipperSnapPy .
+
 ## Links:
 
 We also invite you to check out our lab webpage at https://deep-mi.org

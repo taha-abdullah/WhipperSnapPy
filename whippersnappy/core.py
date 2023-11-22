@@ -274,7 +274,7 @@ def prepare_geometry(
     Prepare meshdata for upload to GPU.
 
     Vertex coordinates, vertex normals and color values are concatenated into
-    large vertexdata array. Also returns trianges, minimum and maximum overlay
+    large vertexdata array. Also returns triangles, minimum and maximum overlay
     values as well as whether negative values are present or not in triangles.
 
     Parameters
@@ -790,9 +790,9 @@ def snap4(
     # setup window
     # (keep aspect ratio, as the mesh scale and distances are set accordingly)
     wwidth = 540
-    wheight = 450
+    weight = 450
     visible = False
-    window = init_window(wwidth, wheight, "WhipperSnapPy 2.0", visible)
+    window = init_window(wwidth, weight, "WhipperSnapPy 2.0", visible)
     if not window:
         return False  # need raise error here in future
 
@@ -849,7 +849,7 @@ provided, can not find surf file"
             meshpath, overlaypath, curvpath, labelpath, fthresh, fmax, invert
         )
         # upload to GPU and compile shaders
-        shader = setup_shader(meshdata, triangles, wwidth, wheight, specular=specular)
+        shader = setup_shader(meshdata, triangles, wwidth, weight, specular=specular)
 
         # draw
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
@@ -860,7 +860,7 @@ provided, can not find surf file"
         gl.glUniformMatrix4fv(transformLoc, 1, gl.GL_FALSE, viewmat)
         gl.glDrawElements(gl.GL_TRIANGLES, triangles.size, gl.GL_UNSIGNED_INT, None)
 
-        im1 = capture_window(wwidth, wheight)
+        im1 = capture_window(wwidth, weight)
 
         glfw.swap_buffers(window)
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
@@ -870,7 +870,7 @@ provided, can not find surf file"
         gl.glUniformMatrix4fv(transformLoc, 1, gl.GL_FALSE, viewmat)
         gl.glDrawElements(gl.GL_TRIANGLES, triangles.size, gl.GL_UNSIGNED_INT, None)
 
-        im2 = capture_window(wwidth, wheight)
+        im2 = capture_window(wwidth, weight)
 
         if hemi == "lh":
             lhimg = Image.new("RGB", (im1.width, im1.height + im2.height))

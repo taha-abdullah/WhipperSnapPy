@@ -93,8 +93,8 @@ def show_window(
     global current_fthresh_, current_fmax_, app_, app_window_, app_window_closed_
 
     wwidth = 720
-    wheight = 600
-    window = init_window(wwidth, wheight, "WhipperSnapPy", visible=True)
+    weight = 600
+    window = init_window(wwidth, weight, "WhipperSnapPy", visible=True)
     if not window:
         return False
 
@@ -130,7 +130,7 @@ def show_window(
     meshdata, triangles, fthresh, fmax, neg = prepare_geometry(
         meshpath, overlaypath, curvpath, labelpath, current_fthresh_, current_fmax_
     )
-    shader = setup_shader(meshdata, triangles, wwidth, wheight, specular=specular)
+    shader = setup_shader(meshdata, triangles, wwidth, weight, specular=specular)
 
     print()
     print("Keys:")
@@ -166,7 +166,7 @@ def show_window(
                     current_fmax_,
                 )
                 shader = setup_shader(
-                    meshdata, triangles, wwidth, wheight, specular=specular
+                    meshdata, triangles, wwidth, weight, specular=specular
                 )
 
         transformLoc = gl.glGetUniformLocation(shader, "transform")
@@ -313,7 +313,7 @@ def run():
 
 
 # headless docker test using xvfb:
-# Note, xvfb is a display server implemening the X11 protocol, and performing
+# Note, xvfb is a display server implementing the X11 protocol, and performing
 # all graphics on memory.
 # glfw needs a windows to render even if that is invisible, so above code
 # will not work via ssh or on a headless server. xvfb can solve this by wrapping:

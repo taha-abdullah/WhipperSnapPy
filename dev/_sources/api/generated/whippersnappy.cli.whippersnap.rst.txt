@@ -1,0 +1,5 @@
+﻿whippersnappy.cli.whippersnap
+=============================
+
+.. automodule:: whippersnappy.cli.whippersnap
+    :members:

@@ -1,0 +1,13 @@
+﻿whippersnappy.config\_app.ConfigWindow
+======================================
+
+.. currentmodule:: whippersnappy.config_app
+
+.. autoclass:: ConfigWindow
+   :members:
+   
+
+
+
+
+

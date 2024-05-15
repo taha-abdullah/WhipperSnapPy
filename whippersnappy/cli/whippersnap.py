@@ -31,7 +31,7 @@ import threading
 import glfw
 import OpenGL.GL as gl
 import pyrr
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication
 
 from whippersnappy.config_app import ConfigWindow
 from whippersnappy.core import (
